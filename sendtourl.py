@@ -34,6 +34,7 @@ reading = hx.get_data_mean(readings=100)
 #you have to put into consideration that the tare_offset and calibration_factor 
 #might change due to a platform placed on the weight sensor before weighing. 
 #if there is a platform, first go to the calibration program and run it first to have a new calibration_factor and tare_offset. 
+#this is with platform
 tare_offset = 159054
 hx.set_offset(tare_offset)
 print(f'Tare offset set to: {tare_offset}')
