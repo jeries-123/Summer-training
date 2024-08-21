@@ -13,8 +13,9 @@ hx = HX711(dout_pin=9, pd_sck_pin=10)
 #you have to put into consideration that the tare_offset and calibration_factor 
 #might change due to a platform placed on the weight sensor before weighing. 
 #if there is a platform, first go to the calibration program and run it first to have a new calibration_factor and tare_offset. 
-calibration_factor = 106.582 
-tare_offset = 45422  
+#this is with platform
+calibration_factor = 102.372
+tare_offset = 159054  
 
 hx.set_scale_ratio(calibration_factor)
 hx.set_offset(tare_offset)
