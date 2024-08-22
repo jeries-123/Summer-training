@@ -1,0 +1,10 @@
+{
+    "temperature_humidity": {
+        "temperature": 23,
+        "humidity": 61
+    },
+    "distance": 12.6,
+    "bees_alive": true,
+    "hive_open": true,
+    "weight": 4.982671042863283
+}

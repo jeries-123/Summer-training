@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bee Hive Monitor</title>
+    <link rel="stylesheet" type="text/css" href="style2.css">
+</head>
+<body>
+    <h1>Bee Hive Monitor</h1>
+    <div id="temperature-humidity">
+        <h2>Temperature & Humidity</h2>
+        <p id="temp">Temperature: --</p>
+        <p id="humidity">Humidity: --</p>
+    </div>
+    <div id="distance">
+        <h2>Distance</h2>
+        <p id="dist">Object Distance: --</p>
+    </div>
+    <div id="bee-status">
+        <h2>Bee Status</h2>
+        <p id="bee">Status: --</p>
+    </div>
+    <div id="hive-status">
+        <h2>Hive Status</h2>
+        <p id="hive">Status: --</p>
+    </div>
+    <div class="weight-status">
+         <h2>Hive Weight Measurements</h2>
+            <h4>Current Weight</h4>
+            <p id="currentWeightDisplay">Weight: --</p>
+            <h4>Box Weight</h4>
+            <p id="boxWeightDisplay">Weight: --</p>
+            <h4>Honey Weight</h4>
+            <p id="honeyWeightDisplay">Weight: --</p>
+    </div>
+    <script>
+        async function fetchData() {
+            try {
+                const knownBoxWeight = 12.74; //weight of beehive with raspberry pi
+                
+                const response = await fetch('api.php');
+                const result = await response.json();
+                if (result.status === 'success') {
+                    const data = result.data;
+
+                    if (data.temperature_humidity.temperature !== undefined) {
+                        document.getElementById('temp').textContent = `Temperature: ${data.temperature_humidity.temperature} C`;
+                    }
+                    if (data.temperature_humidity.humidity !== undefined) {
+                        document.getElementById('humidity').textContent = `Humidity: ${data.temperature_humidity.humidity} %`;
+                    }
+                    if (data.distance !== undefined) {
+                        // Update distance display
+                    if (data.distance < 150) {
+                        document.getElementById('dist').textContent = `Distance: Object detected at ${data.distance} cm`;
+                    } else {
+                        document.getElementById('dist').textContent = `Distance: No object detected`;
+                    }
+                    }
+                    document.getElementById('bee').textContent = `Bee Status: ${data.bees_alive ? 'The Bees Are Alive!!!' : 'There might be some issues with the bees, please check the Hive'}`;
+                    document.getElementById('hive').textContent = `Hive Status: ${data.hive_open ? 'Someone Opened the bee hive please check!!' : 'Hive is closed'}`;
+                    
+                     // Update Weight Measurements
+                     
+                     // Update Box Weight
+                    document.getElementById('boxWeightDisplay').textContent = `Weight: ${knownBoxWeight.toFixed(2)} kg`;
+                    
+                    document.getElementById('currentWeightDisplay').textContent = `Weight: ${data.weight.toFixed(2)} kg`;
+                    
+                    const currentWeight = data.weight;
+                    const honeyWeight = currentWeight - knownBoxWeight;
+                    
+                    document.getElementById('honeyWeightDisplay').textContent = `Weight: ${honeyWeight.toFixed(2)} kg`;
+                } else {
+                    console.error('Error fetching data:', result.message);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        // Fetch data immediately on page load
+        fetchData();
+
+        // Refresh data every 0.05 seconds
+        setInterval(fetchData, 50);
+    </script>
+</body>
+</html>

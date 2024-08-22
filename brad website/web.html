@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Camera Feed</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            height: 100vh;
+            background: linear-gradient(135deg, #6d5bba, #8d58bf, #de67a3, #f7934c);
+            font-family: Arial, sans-serif;
+            color: #fff;
+        }
+        header {
+            background: #6f2036;
+            color: #fff;
+            padding: 0.5rem;
+            text-align: center;
+        }
+        header nav a {
+            color: #fff;
+            margin: 0 1rem;
+            text-decoration: none;
+        }
+        #cameraFeedContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+        #cameraFeed {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        #cameraFeedTitle {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <h2>Smart Beekeeping Dashboard</h2>
+            <a href="index.html">Home</a>
+             <a href="dashboard.php">Dashboard</a>
+            <a href="web.html">Live</a>
+        </nav>
+    </header>
+    <div id="cameraFeedContainer">
+        <div id="cameraFeedTitle">Live Camera Feed</div>
+        <video id="cameraFeed" autoplay playsinline></video>
+    </div>
+    <script>
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function(stream) {
+                var video = document.getElementById('cameraFeed');
+                video.srcObject = stream;
+            })
+            .catch(function(error) {
+                console.error("Error accessing the webcam: ", error);
+                document.getElementById('cameraFeedTitle').innerText = "Unable to access webcam";
+            });
+    </script>
+</body>
+</html>
