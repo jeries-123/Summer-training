@@ -90,7 +90,7 @@ def send_data():
             "distance": get_distance(),
             "bees_alive": is_bee_alive(),
             "hive_open": is_hive_open(),
-            "weight": get_weight()  # Include weight data
+            # "weight": get_weight()  # Include weight data
         }
         
         # Send data to the remote API endpoint
