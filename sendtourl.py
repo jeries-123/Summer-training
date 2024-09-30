@@ -5,7 +5,9 @@ import board
 import time
 import requests
 import threading
-from hx711 import HX711
+# from hx711 import HX711
+##jeries
+
 
 app = Flask(__name__)
 
@@ -110,7 +112,7 @@ def get_data():
         "distance": get_distance(),
         "bees_alive": is_bee_alive(),
         "hive_open": is_hive_open(),
-        "weight": get_weight()  # Include weight data in the API response
+        # "weight": get_weight()  # Include weight data in the API response //
     }
     return jsonify(data)
     
