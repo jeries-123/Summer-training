@@ -27,14 +27,7 @@ GPIO.setup(LIGHT, GPIO.IN)
 # Initialize HX711 for weight measurement
 hx = HX711(dout_pin=9, pd_sck_pin=10)
 
-reading = hx.get_data_mean(readings=100)
-
-# Set the calibration factor and tare offset
-
-#you have to put into consideration that the tare_offset and calibration_factor 
-#might change due to a platform placed on the weight sensor before weighing. 
-#if there is a platform, first go to the calibration program and run it first to have a new calibration_factor and tare_offset. 
-#this is with platform
+# Set the tare offset and calibration ratio
 tare_offset = 159054
 hx.set_offset(tare_offset)
 print(f'Tare offset set to: {tare_offset}')
@@ -76,10 +69,14 @@ def is_hive_open():
     return GPIO.input(LIGHT) == GPIO.HIGH
 
 def get_weight():
-    # Get the current weight measurement
-    weight = hx.get_weight_mean(readings=5) # Take the mean of 5 readings	
-    kgweight = weight/1000 #convert to kg
-    return kgweight
+    try:
+        # Get the current weight measurement
+        weight = hx.get_weight_mean(readings=5)  # Get mean of 5 readings
+        kgweight = weight / 1000  # Convert to kg
+        return kgweight
+    except Exception as e:
+        print("Error getting weight:", e)
+        return None  # Return None or some default value in case of error
 
 def send_data():
     while True:
