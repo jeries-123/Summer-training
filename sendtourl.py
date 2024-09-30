@@ -93,7 +93,7 @@ def send_data():
         
         # Send data to the remote API endpoint
         try:
-            response = requests.post('http://profdux.education/api.php', json=data)
+            response = requests.post('http://bees.aiiot.center/api.php', json=data)
             if response.status_code == 200:
                 print('Data sent successfully:', response.json())
             else:
