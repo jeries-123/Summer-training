@@ -27,13 +27,13 @@ GPIO.setup(LIGHT, GPIO.IN)
 # Initialize HX711 for weight measurement
 hx = HX711(dout_pin=9, pd_sck_pin=10)
 
-# Set the tare offset and calibration ratio
-tare_offset = 159054
-hx.set_offset(tare_offset)
-print(f'Tare offset set to: {tare_offset}')
+# Tare the scale to set the current weight as zero
+hx.tare()
+print('Tare weight set to zero.')
 
+# Set the calibration ratio for the scale
 ratio = 102.372
-hx.set_scale_ratio(ratio)
+hx.set_scale(ratio)  # Use the correct method for setting scale
 print(f'Scale ratio set to: {ratio}')
 
 def get_distance():
