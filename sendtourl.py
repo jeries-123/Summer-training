@@ -27,14 +27,22 @@ GPIO.setup(LIGHT, GPIO.IN)
 # Initialize HX711 for weight measurement
 hx = HX711(dout_pin=9, pd_sck_pin=10)
 
-# Tare the scale to set the current weight as zero
-hx.tare()
-print('Tare weight set to zero.')
-
 # Set the calibration ratio for the scale
 ratio = 102.372
 hx.set_scale(ratio)  # Use the correct method for setting scale
 print(f'Scale ratio set to: {ratio}')
+
+# Manual tare weight variable
+tare_offset = 0
+
+def tare_scale():
+    global tare_offset
+    tare_weight = hx.get_weight_mean(readings=5)  # Get the initial weight
+    tare_offset = tare_weight  # Set tare offset
+    print(f'Tare offset set to: {tare_offset}')
+
+# Call tare_scale() to initialize tare offset
+tare_scale()
 
 def get_distance():
     GPIO.output(TRIG, False)
@@ -70,9 +78,9 @@ def is_hive_open():
 
 def get_weight():
     try:
-        # Get the current weight measurement
+        # Get the current weight measurement and subtract tare offset
         weight = hx.get_weight_mean(readings=5)  # Get mean of 5 readings
-        kgweight = weight / 1000  # Convert to kg
+        kgweight = (weight - tare_offset) / 1000  # Convert to kg and apply tare offset
         return kgweight
     except Exception as e:
         print("Error getting weight:", e)
