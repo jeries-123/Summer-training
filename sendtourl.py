@@ -124,3 +124,4 @@ if __name__ == '__main__':
     data_thread.daemon = True  # This will allow the thread to exit when the main program exits
     data_thread.start()
     app.run(host='0.0.0.0', port=5000)
+    
