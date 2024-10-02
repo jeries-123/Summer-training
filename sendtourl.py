@@ -94,11 +94,16 @@ def get_data():
 
 def send_data():
     while True:
+        temperature_humidity_data = temperature_humidity()
+        distance = get_distance()
+        bees_alive = is_bee_alive()
+        hive_open = is_hive_open()
+
         data = {
-            "temperature_humidity": temperature_humidity(),
-            "distance": get_distance(),
-            "bees_alive": is_bee_alive(),
-            "hive_open": is_hive_open(),
+            "temperature_humidity": temperature_humidity_data,
+            "distance": distance,
+            "bees_alive": bees_alive,
+            "hive_open": hive_open,
         }
 
         # Send data to the remote API endpoint
@@ -110,7 +115,7 @@ def send_data():
                 print('Failed to send data:', response.status_code, response.text)
         except Exception as e:
             print('Error sending data:', e)
-        
+
         time.sleep(5)  # Sleep for 5 seconds before sending data again
 
 if __name__ == '__main__':
