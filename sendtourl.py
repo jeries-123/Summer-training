@@ -44,6 +44,21 @@ def get_distance():
 
 def temperature_humidity():
     max_retries = 5
+    try:
+        # Check if the DHT device is initialized
+        temperature = dht_device.temperature
+        humidity = dht_device.humidity
+        
+        if temperature is not None and humidity is not None:
+            return {"temperature": temperature, "humidity": humidity}
+    except RuntimeError as error:
+        print(f"Failed to read DHT sensor: {error}")
+        # Retry logic can still be here if needed
+    except Exception as e:
+        print(f"Error initializing DHT sensor: {e}")
+        return {"error": "DHT sensor not connected or initialized"}
+
+    # Retry reading
     for attempt in range(max_retries):
         try:
             temperature = dht_device.temperature
@@ -54,10 +69,11 @@ def temperature_humidity():
             print(f"Attempt {attempt + 1}: {str(error)}")
             time.sleep(2)  # Wait before retrying
         except Exception as e:
-            print(f"Error reading DHT sensor: {e}")
-            break  # Exit the loop if an unexpected error occurs
+            print(f"Unexpected error: {e}")
+            break  # Exit the loop on unexpected errors
 
     return {"error": "Failed to read temperature and humidity after several attempts"}
+
 
 def is_bee_alive():
     sound_detected = GPIO.input(SOUND)
