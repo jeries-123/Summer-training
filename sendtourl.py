@@ -29,12 +29,12 @@ GPIO.setup(LIGHT, GPIO.IN)
 # Initialize HX711 for weight measurement
 hx = HX711(dout_pin=9, pd_sck_pin=10)
 
-# Perform tare (zero the scale) by taking a reading from the load cell with no weight on it
-hx.tare()
-print('Tare done, offset set.')
+# Perform manual tare (zero the scale) by taking a reading with no weight on the sensor
+hx.set_offset(hx.get_raw_data_mean(readings=100))  # Read the raw data and set it as the offset
+print(f'Offset set for tare: {hx.offset}')
 
 # Set the scale ratio for calibration
-ratio = 102.372
+ratio = 102.372  # Calibration factor (depends on your load cell and setup)
 hx.set_scale_ratio(ratio)
 print(f'Scale ratio set to: {ratio}')
 
