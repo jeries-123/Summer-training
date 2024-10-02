@@ -43,12 +43,18 @@ def get_distance():
     return round(distance, 1)
 
 def temperature_humidity():
-    try:
-        temperature = dht_device.temperature
-        humidity = dht_device.humidity
-        return {"temperature": temperature, "humidity": humidity}
-    except RuntimeError as error:
-        return {"error": str(error)}
+    max_retries = 5
+    for attempt in range(max_retries):
+        try:
+            temperature = dht_device.temperature
+            humidity = dht_device.humidity
+            if temperature is not None and humidity is not None:
+                return {"temperature": temperature, "humidity": humidity}
+        except RuntimeError as error:
+            print(f"Attempt {attempt + 1}: {str(error)}")
+            time.sleep(2)  # Wait before retrying
+
+    return {"error": "Failed to read temperature and humidity after several attempts"}
 
 def is_bee_alive():
     sound_detected = GPIO.input(SOUND)
