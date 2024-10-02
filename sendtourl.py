@@ -27,10 +27,8 @@ GPIO.setup(LIGHT, GPIO.IN)
 # Initialize HX711 for weight measurement
 hx = HX711(dout_pin=9, pd_sck_pin=10)
 
-# Set the calibration factor and tare offset
-calibration_factor = 102.372  # Adjust this based on your calibration
-hx.set_scale_ratio(calibration_factor)
-print(f'Scale ratio set to: {calibration_factor}')
+# Set the calibration factor (adjust based on your calibration)
+calibration_factor = 102.372  # You might need to adjust this
 
 # Tare the scale to set the current weight to zero
 def tare_scale():
