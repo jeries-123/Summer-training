@@ -35,6 +35,7 @@ def tare_scale():
     print("Taring the scale... Please make sure it's empty.")
     time.sleep(2)  # Allow some time for the scale to stabilize
     hx.reset()  # Reset the HX711
+    hx.set_scale_ratio(calibration_factor)  # Set calibration factor
     print("Scale tared.")
 
 # Function to get distance from the ultrasonic sensor
@@ -61,21 +62,24 @@ def temperature_humidity():
         humidity = dht_device.humidity
         return {"temperature": temperature, "humidity": humidity}
     except RuntimeError as error:
-        return {"error": error.args[0]}
+        return {"error": str(error)}
 
 # Function to check if the hive is open or if bees are alive
 def is_bee_alive():
-    sound_detected = GPIO.input(SOUND)
-    return sound_detected == 0
+    return GPIO.input(SOUND) == 0  # Returns True if bees are alive
 
 def is_hive_open():
-    return GPIO.input(LIGHT) == GPIO.HIGH
+    return GPIO.input(LIGHT) == GPIO.HIGH  # Returns True if hive light is detected
 
 # Function to get weight measurement
 def get_weight():
-    weight = hx.get_weight_mean(readings=5)  # Get the mean of 5 readings
-    kg_weight = weight / 1000  # Convert to kg
-    return kg_weight
+    try:
+        weight = hx.get_weight_mean(readings=5)  # Get the mean of 5 readings
+        kg_weight = weight / 1000  # Convert to kg
+        return kg_weight
+    except Exception as e:
+        print(f"Error getting weight: {e}")
+        return None
 
 # Function to send data to the remote API endpoint
 def send_data():
@@ -97,7 +101,7 @@ def send_data():
         except Exception as e:
             print('Error sending data:', e)
 
-        time.sleep(0.005)  # Sleep for 5 milliseconds
+        time.sleep(5)  # Sleep for 5 seconds for regular data sending
 
 @app.route('/data', methods=['GET'])
 def get_data():
