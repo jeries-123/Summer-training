@@ -8,7 +8,7 @@ import threading
 
 app = Flask(__name__)
 
-# Initialize the DHT11 device, with data pin connected to GPIO2
+# Initialize the DHT11 device, with data pin connected to GPIO2 (board.D2)
 dht_device = adafruit_dht.DHT11(board.D2)
 SOUND = 3
 TRIG = 17
@@ -53,6 +53,9 @@ def temperature_humidity():
         except RuntimeError as error:
             print(f"Attempt {attempt + 1}: {str(error)}")
             time.sleep(2)  # Wait before retrying
+        except Exception as e:
+            print(f"Error reading DHT sensor: {e}")
+            break  # Exit the loop if an unexpected error occurs
 
     return {"error": "Failed to read temperature and humidity after several attempts"}
 
@@ -95,7 +98,12 @@ def send_data():
         time.sleep(5)  # Sleep for 5 seconds before sending data again
 
 if __name__ == '__main__':
-    data_thread = threading.Thread(target=send_data)
-    data_thread.daemon = True  # Allow thread to exit when the main program exits
-    data_thread.start()
-    app.run(host='0.0.0.0', port=5000)
+    try:
+        data_thread = threading.Thread(target=send_data)
+        data_thread.daemon = True  # Allow thread to exit when the main program exits
+        data_thread.start()
+        app.run(host='0.0.0.0', port=5000)
+    except KeyboardInterrupt:
+        print("Shutting down...")
+    finally:
+        GPIO.cleanup()  # Clean up GPIO on exit
