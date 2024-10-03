@@ -32,11 +32,15 @@ calibration_factor = 102.372  # You might need to adjust this
 
 # Tare the scale to set the current weight to zero
 def tare_scale():
-    print("Taring the scale... Please make sure it's empty.")
-    time.sleep(2)  # Allow some time for the scale to stabilize
-    hx.reset()  # Reset the HX711
-    hx.set_scale_ratio(calibration_factor)  # Set calibration factor
-    print("Scale tared.")
+    try:
+        print("Taring the scale... Please make sure it's empty.")
+        time.sleep(2)  # Allow some time for the scale to stabilize
+        hx.reset()  # Reset the HX711
+        hx.set_scale_ratio(calibration_factor)  # Set calibration factor
+        print("Scale tared.")
+    except Exception as e:
+        print(f"Error during tare: {e}")
+
 
 # Function to get distance from the ultrasonic sensor
 def get_distance():
