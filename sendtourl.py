@@ -168,3 +168,4 @@ if __name__ == '__main__':
 
     # Clean up GPIO pins on exit
     GPIO.cleanup()
+##s
