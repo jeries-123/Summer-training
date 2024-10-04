@@ -31,17 +31,41 @@ hx = HX711(dout_pin=9, pd_sck_pin=10)
 
 # Calibration factor for the load cell (adjust based on calibration)
 calibration_factor = 102.372
+zero_offset = 0
 
-# Function to tare (zero) the scale
+# Function to tare (zero) the scale manually
 def tare_scale():
+    global zero_offset
     try:
         print("Taring the scale... Please make sure it's empty.")
         time.sleep(2)  # Allow some time for the scale to stabilize
         hx.reset()  # Reset the HX711
-        hx.tare()  # Tare the scale to set the current weight to zero
-        print("Scale tared successfully.")
+        raw_readings = []
+        
+        # Take multiple readings to establish a baseline zero offset
+        for _ in range(10):
+            raw_readings.append(hx.get_raw_data_mean())
+            time.sleep(0.1)
+
+        # Calculate the average of the raw readings to establish zero offset
+        zero_offset = sum(raw_readings) / len(raw_readings)
+        print("Scale tared successfully. Zero offset:", zero_offset)
     except Exception as e:
         print(f"Error during tare: {e}")
+
+# Function to get weight measurement from HX711
+def get_weight():
+    try:
+        raw_value = hx.get_raw_data_mean()  # Read the raw data from HX711
+        if raw_value is None:
+            raise ValueError("Failed to get data from HX711")
+
+        # Calculate the weight by subtracting the zero offset and applying calibration factor
+        weight = (raw_value - zero_offset) / calibration_factor
+        return weight / 1000  # Convert to kg
+    except Exception as e:
+        print(f"Error getting weight: {e}")
+        return None
 
 # Function to get distance from the ultrasonic sensor
 def get_distance():
@@ -91,15 +115,6 @@ def is_hive_open():
         return GPIO.input(LIGHT) == GPIO.HIGH
     except Exception as e:
         print(f"Error checking hive light sensor: {e}")
-        return None
-
-# Function to get weight measurement from HX711
-def get_weight():
-    try:
-        weight = hx.get_weight(5)  # Get the weight, averaging over 5 readings
-        return weight / 1000  # Convert to kg
-    except Exception as e:
-        print(f"Error getting weight: {e}")
         return None
 
 # Function to send data to remote API endpoint
