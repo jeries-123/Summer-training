@@ -9,7 +9,7 @@ GPIO.setmode(GPIO.BCM)
 # Initialize HX711 on GPIO pins
 hx = HX711(dout_pin=9, pd_sck_pin=10)
 
-# Calibration factor (adjust based on your load cell calibration)
+# Placeholder for calibration factor (adjust during calibration)
 calibration_factor = 102.372
 zero_offset = 0
 
@@ -33,30 +33,52 @@ def tare_scale():
     except Exception as e:
         print(f"Error during tare: {e}")
 
-def get_weight():
+def calibrate_scale(known_weight_grams):
     try:
-        # Set the calibration factor for weight calculation
-        hx.set_scale_ratio(calibration_factor)
-        
-        # Get the mean weight based on multiple readings
-        weight = hx.get_weight_mean(readings=10)  # Average over 10 readings
-        if weight is None:
-            raise ValueError("Failed to get data from HX711")
+        # Set a trial calibration factor initially (any reasonable number)
+        hx.set_scale_ratio(1)  # Set a temporary calibration ratio to get raw readings
 
+        raw_value = hx.get_weight_mean(readings=10)
+        if raw_value is None:
+            raise ValueError("Failed to get valid data from HX711")
+
+        # Calculate the calibration factor based on the known weight
+        global calibration_factor
+        calibration_factor = raw_value / known_weight_grams
+        print(f"Calibration complete. Calibration factor: {calibration_factor}")
+
+        # Set the calibration factor for subsequent readings
+        hx.set_scale_ratio(calibration_factor)
+    except Exception as e:
+        print(f"Error during calibration: {e}")
+
+def get_weight_filtered():
+    try:
+        # Get multiple readings and filter out outliers
+        readings = [hx.get_weight_mean(readings=5) for _ in range(10)]
+        readings = [value for value in readings if value is not None]
+
+        if len(readings) < 5:
+            raise ValueError("Not enough valid readings for filtering")
+
+        # Sort readings and remove the top and bottom 10%
+        readings.sort()
+        filtered_readings = readings[len(readings) // 10: -len(readings) // 10]
+
+        # Calculate the average of the filtered readings
+        weight = sum(filtered_readings) / len(filtered_readings)
         weight_kg = weight / 1000  # Convert to kg
 
-        # If the weight is negative, set it to zero (you can adjust this logic)
-        if weight_kg < 0:
-            weight_kg = 0
-
-        print(f"Weight: {weight_kg:.2f} kg")
+        # Print and return the weight
+        print(f"Weight (filtered): {weight_kg:.2f} kg")
         return weight_kg
     except Exception as e:
-        print(f"Error getting weight: {e}")
+        print(f"Error getting filtered weight: {e}")
         return None
 
 if __name__ == '__main__':
-    tare_scale()  # Tare the scale
+    tare_scale()  # Tare the scale first
+    calibrate_scale(1000)  # Use a known weight for calibration, e.g., 1000g
     while True:
-        get_weight()  # Measure the weight
+        get_weight_filtered()  # Use the filtered version to get weight
         time.sleep(2)
