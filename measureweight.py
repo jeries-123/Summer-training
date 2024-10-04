@@ -1,4 +1,7 @@
+import RPi.GPIO as GPIO
 from hx711 import HX711
+
+GPIO.setwarnings(False)  # Disable GPIO warnings
 
 hx = HX711(dout_pin=9, pd_sck_pin=10)
 
