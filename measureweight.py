@@ -9,7 +9,7 @@ GPIO.setmode(GPIO.BCM)
 # Initialize HX711 on GPIO pins
 hx = HX711(dout_pin=9, pd_sck_pin=10)
 
-# Placeholder for calibration factor (adjust during calibration)
+# Calibration factor (adjust based on your load cell calibration)
 calibration_factor = 102.372
 zero_offset = 0
 
@@ -26,7 +26,8 @@ def tare_scale():
         if len(raw_readings) == 0:
             raise ValueError("Failed to get valid readings during taring.")
 
-        zero_offset = sum(raw_readings) / len(raw_readings)
+        # Calculate zero offset and convert to integer
+        zero_offset = int(sum(raw_readings) / len(raw_readings))
         hx.set_offset(zero_offset)  # Set the zero offset
         print(f"Taring complete. Zero offset: {zero_offset}")
     except Exception as e:
