@@ -5,7 +5,7 @@ import board
 import time
 import requests
 import threading
-from hx711 import HX711  # Assuming the correct HX711 library is installed
+from hx711 import HX711  # Ensure you are using a compatible HX711 library
 
 app = Flask(__name__)
 
@@ -37,12 +37,61 @@ def tare_scale():
     try:
         print("Taring the scale... Please make sure it's empty.")
         time.sleep(2)  # Allow some time for the scale to stabilize
-        hx.set_reference_unit(calibration_factor)  # Set the calibration factor
         hx.reset()  # Reset the HX711
         hx.tare()  # Tare the scale to set the current weight to zero
         print("Scale tared successfully.")
     except Exception as e:
         print(f"Error during tare: {e}")
+
+# Function to get distance from the ultrasonic sensor
+def get_distance():
+    try:
+        GPIO.output(TRIG, False)
+        time.sleep(0.000002)
+        GPIO.output(TRIG, True)
+        time.sleep(0.00001)
+        GPIO.output(TRIG, False)
+
+        while GPIO.input(ECHO) == 0:
+            pass
+        pulse_start = time.time()
+
+        while GPIO.input(ECHO) == 1:
+            pass
+        pulse_end = time.time()
+
+        pulse_duration = pulse_end - pulse_start
+        distance = (pulse_duration * 34300) / 2  # cm
+        return round(distance, 1)
+    except Exception as e:
+        print(f"Error getting distance: {e}")
+        return None
+
+# Function to read temperature and humidity from DHT11
+def temperature_humidity():
+    try:
+        temperature = dht_device.temperature
+        humidity = dht_device.humidity
+        return {"temperature": temperature, "humidity": humidity}
+    except RuntimeError as error:
+        print(f"Error reading DHT11: {error}")
+        return {"error": str(error)}
+
+# Function to check if bees are alive using the sound sensor
+def is_bee_alive():
+    try:
+        return GPIO.input(SOUND) == 0
+    except Exception as e:
+        print(f"Error checking bee sound sensor: {e}")
+        return None
+
+# Function to check if hive is open using the light sensor
+def is_hive_open():
+    try:
+        return GPIO.input(LIGHT) == GPIO.HIGH
+    except Exception as e:
+        print(f"Error checking hive light sensor: {e}")
+        return None
 
 # Function to get weight measurement from HX711
 def get_weight():
@@ -52,8 +101,6 @@ def get_weight():
     except Exception as e:
         print(f"Error getting weight: {e}")
         return None
-
-# Other functions (get_distance, temperature_humidity, etc.) remain unchanged...
 
 # Function to send data to remote API endpoint
 def send_data():
