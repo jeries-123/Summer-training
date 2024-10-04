@@ -27,7 +27,7 @@ def tare_scale():
             raise ValueError("Failed to get valid readings during taring.")
 
         # Calculate zero offset and convert to integer
-        zero_offset = int(sum(raw_readings) / len(raw_readings))
+        zero_offset = abs(int(sum(raw_readings) / len(raw_readings)))
         hx.set_offset(zero_offset)  # Set the zero offset
         print(f"Taring complete. Zero offset: {zero_offset}")
     except Exception as e:
@@ -38,7 +38,7 @@ def calibrate_scale(known_weight_grams):
         # Set a trial calibration factor initially (any reasonable number)
         hx.set_scale_ratio(1)  # Set a temporary calibration ratio to get raw readings
 
-        raw_value = hx.get_weight_mean(readings=10)
+        raw_value = abs(hx.get_weight_mean(readings=10))
         if raw_value is None:
             raise ValueError("Failed to get valid data from HX711")
 
@@ -55,7 +55,7 @@ def calibrate_scale(known_weight_grams):
 def get_weight_filtered():
     try:
         # Get multiple readings and filter out outliers
-        readings = [hx.get_weight_mean(readings=5) for _ in range(10)]
+        readings = [abs(hx.get_weight_mean(readings=5)) for _ in range(10)]
         readings = [value for value in readings if value is not None]
 
         if len(readings) < 5:
