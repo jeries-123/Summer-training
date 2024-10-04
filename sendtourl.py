@@ -41,14 +41,19 @@ def tare_scale():
         time.sleep(2)  # Allow some time for the scale to stabilize
         hx.reset()  # Reset the HX711
         raw_readings = []
-        
+
         # Take multiple readings to establish a baseline zero offset
         for _ in range(10):
-            raw_readings.append(hx.get_raw_data_mean())
+            raw_value = hx.read()  # Use read() method to get raw value from HX711
+            if raw_value is not None:
+                raw_readings.append(raw_value)
             time.sleep(0.1)
 
         # Calculate the average of the raw readings to establish zero offset
-        zero_offset = sum(raw_readings) / len(raw_readings)
+        if raw_readings:
+            zero_offset = sum(raw_readings) / len(raw_readings)
+        else:
+            raise ValueError("Failed to get valid readings during taring.")
         print("Scale tared successfully. Zero offset:", zero_offset)
     except Exception as e:
         print(f"Error during tare: {e}")
@@ -56,7 +61,7 @@ def tare_scale():
 # Function to get weight measurement from HX711
 def get_weight():
     try:
-        raw_value = hx.get_raw_data_mean()  # Read the raw data from HX711
+        raw_value = hx.read()  # Use read() method to get raw value from HX711
         if raw_value is None:
             raise ValueError("Failed to get data from HX711")
 
